@@ -1,0 +1,165 @@
+swagger: '2.0'
+info:
+  version: 0.0.1
+  title:  Example Api
+  description: ''
+host: 'localhost:8080'
+basePath: /example-api
+tags:
+  - name: Purchase
+    description: 'Purchase a product'
+  - name: Refund
+    description: 'Refund payment'
+paths:
+  '/v1/purchase':
+    post:
+      operationId: purchaseProduct
+      summary: 'Purchase a product'
+      tags:
+        - Purchase
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/purchase-save-request'
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/response-base'
+        '401':
+          $ref: '#/responses/response-unauthorized'
+        '500':
+          $ref: '#/responses/response-internal-server-error-500'
+  '/v1/purchases/{customer-id}':
+      get:
+        operationId: getAllTransactions
+        summary: Get All transactions for a customer
+        tags:
+          - Purchase
+        produces:
+        - application/json
+        parameters:
+          - $ref: '#/parameters/customer-id-in-path'
+        responses:
+          '200':
+            description: ''
+            schema:
+              $ref: '#/definitions/response-model-transaction-list'
+          '401':
+            $ref: '#/responses/response-unauthorized'
+          '500':
+            $ref: '#/responses/response-internal-server-error-500'
+  '/v1/refund/{transaction-id}':
+      put:
+        operationId: refundPayment
+        summary: 'Refund payment'
+        tags:
+          - Refund
+        consumes:
+        - application/json
+        parameters:
+          - $ref: '#/parameters/transaction-id-in-path'
+        responses:
+          '200':
+            description: ''
+            schema:
+              $ref: '#/definitions/response-base'
+          '401':
+            $ref: '#/responses/response-unauthorized'
+          '500':
+            $ref: '#/responses/response-internal-server-error-500'
+parameters:
+  transaction-id-in-path:
+    in: path
+    name: transaction-id
+    type: string
+    required: true
+  customer-id-in-path:
+    in: path
+    name: customer-id
+    type: string
+    required: true
+definitions:
+    response-base:
+      type: object
+      properties:
+        success:
+          type: boolean
+        resultCode:
+          type: integer
+          format: int32
+        message:
+          type: string
+        errors:
+          type: array
+          items:
+            type: string
+        transactionId:
+          type: string
+        type:
+          type: string
+      discriminator: type
+      required:
+        - success
+        - resultCode
+    purchase-save-request:
+      type: object
+      properties:
+        phoneNumber:
+          type: string
+        productId:
+          type: string
+        amount:
+          type: integer
+          format: int64
+      required: 
+        - phoneNumber
+        - productId
+        - amount
+    model-transaction:
+      type: object
+      properties:
+        productId:
+          type: string
+        transactionBegin:
+          type: string
+          format: date-time
+        transactionEnd:
+          type: string
+          format: date-time
+    model-transaction-list:
+      type: object
+      properties:
+        list:
+          type: array
+          items: 
+            $ref: '#/definitions/model-transaction'
+    response-model-transaction-single:
+      allOf:
+        - $ref: '#/definitions/response-base'
+        - type: object
+          properties:
+            returnValue:
+              $ref: '#/definitions/model-transaction'
+    response-model-transaction-list:
+      allOf:
+        - $ref: '#/definitions/response-base'
+        - type: object
+          properties:
+            returnValue:
+              $ref: '#/definitions/model-transaction-list'
+responses:
+    response-internal-server-error-500:
+      description: Internal Server error
+      schema:
+        $ref: '#/definitions/response-base'
+    response-unauthorized:
+        description: Authentication information is missing or invalid
+        schema:
+          $ref: '#/definitions/response-base' 
+        headers:
+          WWW_Authenticate:
+            type: string

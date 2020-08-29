@@ -1,0 +1,19 @@
+# compiled output
+/dist
+/tmp
+/out-tsc
+
+.settings
+.springBeans
+bin
+spring-test/test-output/
+
+classes/
+/build
+buildSrc/build
+/spring-*/build
+target/
+
+# Eclipse artifacts, including WTP generated manifests
+.classpath
+.project

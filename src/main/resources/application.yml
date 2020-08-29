@@ -1,0 +1,26 @@
+#==== spring related ======#
+spring:
+   profiles:
+      active: dev
+   application:
+    name: example-api
+   aop:
+      proxy-target-class: true
+
+#==== connect to postgres ======#
+   jpa: 
+      hibernate:
+         ddl-auto: update
+      properties.hibernate.dialect: org.hibernate.dialect.PostgreSQL9Dialect
+   datasource:
+      url: jdbc:postgresql://localhost:5432/docomo
+      username: postgres
+      password: postgres
+      driver-class-name: org.postgresql.Driver
+
+# ====== hibernate ====
+#logging:
+#   level:
+#      org.hibernate.SQL: TRACE
+#      org.hibernate.type: debug
+#      org.springframework.security: DEBUG
