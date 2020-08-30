@@ -13,8 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.docomodigital.exerciseapi.common.annotations.Loggable;
 import com.docomodigital.exerciseapi.common.exception.ApiException;
 import com.docomodigital.exerciseapi.services.IPaymentTransaction;
-import com.docomodigital.exerciseapi.swagger.apis.PurchaseApi;
+import com.docomodigital.exerciseapi.swagger.apis.PurchasesApi;
 import com.docomodigital.exerciseapi.swagger.dtos.ModelPaymentTransactionListDTO;
+import com.docomodigital.exerciseapi.swagger.dtos.PurchaseSaveRequestDTO;
 import com.docomodigital.exerciseapi.swagger.models.ModelPaymentTransactionList;
 import com.docomodigital.exerciseapi.swagger.models.PurchaseSaveRequest;
 import com.docomodigital.exerciseapi.swagger.models.ResponseBase;
@@ -23,7 +24,7 @@ import com.docomodigital.exerciseapi.swagger.models.ResponseModelPaymentTransact
 import io.swagger.annotations.ApiParam;
 
 @RestController
-public class PurchasesConstroller extends AbstractController implements PurchaseApi {
+public class PurchasesConstroller extends AbstractController implements PurchasesApi {
 
     @Autowired
     private IPaymentTransaction paymentTransactionService;
@@ -34,7 +35,8 @@ public class PurchasesConstroller extends AbstractController implements Purchase
     @Override
     @Loggable
     public ResponseEntity<ResponseModelPaymentTransactionList> getAllTransactions(
-            @ApiParam(value = "", required = true) @PathVariable("customer-id") String customerId) {
+            @ApiParam(value = "", required = true) @PathVariable("customer-id") String customerId) 
+    {
         Class<ResponseModelPaymentTransactionList> responseClass = ResponseModelPaymentTransactionList.class;
         ResponseModelPaymentTransactionList response = null;
         HttpStatus status = HttpStatus.OK;
@@ -56,8 +58,45 @@ public class PurchasesConstroller extends AbstractController implements Purchase
     @Override
     @Loggable
     public ResponseEntity<ResponseBase> purchaseProduct(
-            @ApiParam(value = "") @Valid @RequestBody PurchaseSaveRequest body) {
-        return PurchaseApi.super.purchaseProduct(body);
+            @ApiParam(value = "") @Valid @RequestBody PurchaseSaveRequest body) 
+    {
+        Class<ResponseBase> responseClass = ResponseBase.class;
+        ResponseBase response = null;
+        HttpStatus status = HttpStatus.OK;
+        try {
+            PurchaseSaveRequestDTO dtoBody = mapper.map(body, PurchaseSaveRequestDTO.class);
+            paymentTransactionService.purchase(dtoBody);
+            response = fillSuccessResponse(new ResponseBase());
+        } catch (ApiException ex) {
+            status = ex.getHttpCode();
+            response = fillFailResponseApiException(responseClass, ex);
+        } catch (Exception ex) {
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+            response = fillFailResponseGeneric(responseClass);
+        }
+
+        return new ResponseEntity<>(response, status);
+    }
+
+    @Override
+    public ResponseEntity<ResponseBase> refundPayment(
+            @ApiParam(value = "",required=true) @PathVariable("transaction-id") String transactionId) 
+    {
+        Class<ResponseBase> responseClass = ResponseBase.class;
+        ResponseBase response = null;
+        HttpStatus status = HttpStatus.OK;
+        try {
+            paymentTransactionService.refund(transactionId);
+            response = fillSuccessResponse(new ResponseBase());
+        } catch (ApiException ex) {
+            status = ex.getHttpCode();
+            response = fillFailResponseApiException(responseClass, ex);
+        } catch (Exception ex) {
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+            response = fillFailResponseGeneric(responseClass);
+        }
+
+        return new ResponseEntity<>(response, status);
     }
 
 }

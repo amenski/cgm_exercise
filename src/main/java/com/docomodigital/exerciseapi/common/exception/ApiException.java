@@ -10,7 +10,7 @@ public class ApiException extends Exception {
 	private static final long serialVersionUID = -5464526854597284442L;
 
 	private HttpStatus httpCode;
-	private int internalCode;
+	private int errorCode;
 	private String message;
 	private List<String> errors;
 	
@@ -22,7 +22,7 @@ public class ApiException extends Exception {
 	public ApiException(HttpStatus httpCode, int internalCode, String message) {
 		super();
 		this.httpCode = httpCode;
-		this.internalCode = internalCode;
+		this.errorCode = internalCode;
 		this.message = message;
 	}
 	
@@ -36,7 +36,7 @@ public class ApiException extends Exception {
 	public ApiException(HttpStatus httpCode, int internalCode, String message, List<String> errors) {
 		super();
 		this.httpCode = httpCode;
-		this.internalCode = internalCode;
+		this.errorCode = internalCode;
 		this.message = message;
 		this.errors = errors;
 	}
@@ -49,15 +49,15 @@ public class ApiException extends Exception {
 		this.httpCode = httpCode;
 	}
 
-	public int getInternalCode() {
-		return internalCode;
-	}
+	public int getErrorCode() {
+        return errorCode;
+    }
 
-	public void setInternalCode(int internalCode) {
-		this.internalCode = internalCode;
-	}
+    public void setErrorCode(int errorCode) {
+        this.errorCode = errorCode;
+    }
 
-	public String getMessage() {
+    public String getMessage() {
 		return message;
 	}
 

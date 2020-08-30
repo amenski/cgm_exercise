@@ -6,7 +6,7 @@ import com.docomodigital.exerciseapi.swagger.dtos.PurchaseSaveRequestDTO;
 
 public interface IPaymentTransaction {
 
-    public boolean purchase(PurchaseSaveRequestDTO detail) throws ApiException;
+    public boolean purchase(PurchaseSaveRequestDTO body) throws ApiException;
 
     public ModelPaymentTransactionListDTO getTransactionsForCustomer(String phoneNumber) throws ApiException;
 

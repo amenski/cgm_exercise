@@ -6,17 +6,15 @@ info:
 host: 'localhost:8080'
 basePath: /example-api
 tags:
-  - name: Purchase
+  - name: Purchases
     description: 'Purchase a product'
-  - name: Refund
-    description: 'Refund payment'
 paths:
   '/v1/purchase':
     post:
       operationId: purchaseProduct
       summary: 'Purchase a product'
       tags:
-        - Purchase
+        - Purchases
       consumes:
         - application/json
       parameters:
@@ -38,7 +36,7 @@ paths:
         operationId: getAllTransactions
         summary: Get All transactions for a customer
         tags:
-          - Purchase
+          - Purchases
         produces:
         - application/json
         parameters:
@@ -52,12 +50,12 @@ paths:
             $ref: '#/responses/response-unauthorized'
           '500':
             $ref: '#/responses/response-internal-server-error-500'
-  '/v1/refund/{transaction-id}':
+  '/v1/purchases/{transaction-id}/refund':
       put:
         operationId: refundPayment
         summary: 'Refund payment'
         tags:
-          - Refund
+          - Purchases
         consumes:
         - application/json
         parameters:

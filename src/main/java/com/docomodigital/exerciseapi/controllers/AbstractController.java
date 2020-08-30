@@ -27,7 +27,7 @@ public abstract class AbstractController {
 	public <T extends ResponseBase> T fillFailResponseApiException(Class<T> response, ApiException e){
 		T res = getNewInstance(response);
 		res.success(false);
-		res.resultCode(e.getInternalCode());
+		res.resultCode(e.getErrorCode());
 		res.message(e.getMessage() != null ? e.getMessage() : "");
 		res.errors(e.getErrors());
 		
@@ -37,7 +37,7 @@ public abstract class AbstractController {
 	public <T extends ResponseBase> T fillFailResponseGeneric(Class<T> responseClass){
 		T response = getNewInstance(responseClass);
 		response.success(false);
-		response.resultCode(ExceptionEnums.UNHANDLED_EXCEPTION.get().getInternalCode());
+		response.resultCode(ExceptionEnums.UNHANDLED_EXCEPTION.get().getErrorCode());
 		response.message(ExceptionEnums.UNHANDLED_EXCEPTION.get().getMessage());
 		response.errors(null);
 		
