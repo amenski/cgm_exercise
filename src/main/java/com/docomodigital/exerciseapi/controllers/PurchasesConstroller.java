@@ -1,0 +1,63 @@
+package com.docomodigital.exerciseapi.controllers;
+
+import javax.validation.Valid;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.docomodigital.exerciseapi.common.annotations.Loggable;
+import com.docomodigital.exerciseapi.common.exception.ApiException;
+import com.docomodigital.exerciseapi.services.IPaymentTransaction;
+import com.docomodigital.exerciseapi.swagger.apis.PurchaseApi;
+import com.docomodigital.exerciseapi.swagger.dtos.ModelPaymentTransactionListDTO;
+import com.docomodigital.exerciseapi.swagger.models.ModelPaymentTransactionList;
+import com.docomodigital.exerciseapi.swagger.models.PurchaseSaveRequest;
+import com.docomodigital.exerciseapi.swagger.models.ResponseBase;
+import com.docomodigital.exerciseapi.swagger.models.ResponseModelPaymentTransactionList;
+
+import io.swagger.annotations.ApiParam;
+
+@RestController
+public class PurchasesConstroller extends AbstractController implements PurchaseApi {
+
+    @Autowired
+    private IPaymentTransaction paymentTransactionService;
+
+    @Autowired
+    private ModelMapper mapper;
+
+    @Override
+    @Loggable
+    public ResponseEntity<ResponseModelPaymentTransactionList> getAllTransactions(
+            @ApiParam(value = "", required = true) @PathVariable("customer-id") String customerId) {
+        Class<ResponseModelPaymentTransactionList> responseClass = ResponseModelPaymentTransactionList.class;
+        ResponseModelPaymentTransactionList response = null;
+        HttpStatus status = HttpStatus.OK;
+        try {
+            ModelPaymentTransactionListDTO txDtoList = paymentTransactionService.getTransactionsForCustomer(customerId);
+            ModelPaymentTransactionList txList = mapper.map(txDtoList, ModelPaymentTransactionList.class);
+            response = fillSuccessResponse(new ResponseModelPaymentTransactionList().returnValue(txList));
+        } catch (ApiException ex) {
+            status = ex.getHttpCode();
+            response = fillFailResponseApiException(responseClass, ex);
+        } catch (Exception ex) {
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+            response = fillFailResponseGeneric(responseClass);
+        }
+
+        return new ResponseEntity<>(response, status);
+    }
+
+    @Override
+    @Loggable
+    public ResponseEntity<ResponseBase> purchaseProduct(
+            @ApiParam(value = "") @Valid @RequestBody PurchaseSaveRequest body) {
+        return PurchaseApi.super.purchaseProduct(body);
+    }
+
+}

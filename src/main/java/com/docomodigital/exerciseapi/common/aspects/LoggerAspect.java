@@ -37,7 +37,7 @@ public class LoggerAspect {
 	@Autowired
 	private Environment enviroment;
 	
-	@Around("@annotation(com.docomodigital.exerciseapi.common.EthLoggable)") 
+	@Around("@annotation(com.docomodigital.exerciseapi.common.annotations.Loggable)") 
 	public Object loggerInterceptor(ProceedingJoinPoint jointPoint) throws Throwable{
 		List<String> arguments = new ArrayList<>(); 
 		String declaringMethod = LoggerAspect.class.getSimpleName();
@@ -45,7 +45,7 @@ public class LoggerAspect {
 		try{
 			MethodSignature methodSignature = (MethodSignature) jointPoint.getSignature();
 			Method method = methodSignature.getMethod();
-			declaringMethod = methodSignature.getDeclaringType().getSimpleName() + "." + method.getName() + "()"; //like clazz.methodName()
+			declaringMethod = methodSignature.getDeclaringType().getSimpleName() + "." + method.getName() + "()";
 			
 			//argument name and value
 			String[] argumentNames = methodSignature.getParameterNames();
@@ -71,7 +71,7 @@ public class LoggerAspect {
 			proceed = jointPoint.proceed();
 		}catch (Exception e) {
 			if(isDevEnv()) {
-				log(declaringMethod,  LogLevel.ERROR, "{} {}",  e.toString());
+				log(declaringMethod,  LogLevel.ERROR, "{} {}", String.valueOf(e));
 			}
 			log(declaringMethod,  LogLevel.ERROR, "{} {}",  e.getMessage());
 			throw e; //should not swallow the thrown exception

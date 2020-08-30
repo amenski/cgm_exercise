@@ -47,7 +47,7 @@ paths:
           '200':
             description: ''
             schema:
-              $ref: '#/definitions/response-model-transaction-list'
+              $ref: '#/definitions/response-model-payment-transaction-list'
           '401':
             $ref: '#/responses/response-unauthorized'
           '500':
@@ -113,44 +113,44 @@ definitions:
         productId:
           type: string
         amount:
-          type: integer
-          format: int64
+          type: number
+          format: double
       required: 
         - phoneNumber
         - productId
         - amount
-    model-transaction:
+    model-payment-transaction:
       type: object
       properties:
+        phoneNumber:
+          type: string
         productId:
           type: string
+        transactionId:
+          type: string
+        amount:
+          type: number
+          format: double
         transactionBegin:
           type: string
           format: date-time
         transactionEnd:
           type: string
           format: date-time
-    model-transaction-list:
+    model-payment-transaction-list:
       type: object
       properties:
         list:
           type: array
           items: 
-            $ref: '#/definitions/model-transaction'
-    response-model-transaction-single:
+            $ref: '#/definitions/model-payment-transaction'
+    response-model-payment-transaction-list:
       allOf:
         - $ref: '#/definitions/response-base'
         - type: object
           properties:
             returnValue:
-              $ref: '#/definitions/model-transaction'
-    response-model-transaction-list:
-      allOf:
-        - $ref: '#/definitions/response-base'
-        - type: object
-          properties:
-            returnValue:
-              $ref: '#/definitions/model-transaction-list'
+              $ref: '#/definitions/model-payment-transaction-list'
 responses:
     response-internal-server-error-500:
       description: Internal Server error

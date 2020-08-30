@@ -22,6 +22,7 @@
 		<swagger-codegen-maven-plugin-version>2.4.1</swagger-codegen-maven-plugin-version>
 		<io.springfox.version>2.9.2</io.springfox.version>
 		<commons-io.version>2.6</commons-io.version>
+		<swagger.file.location>${project.basedir}/src/main/resources/schema/swagger/example-api-swagger-spec.yml</swagger.file.location>
 	</properties>
 
 	<dependencies>
@@ -71,6 +72,12 @@
 			<artifactId>validation-api</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>org.modelmapper</groupId>
+			<artifactId>modelmapper</artifactId>
+			<version>2.3.8</version>
+		</dependency>
+
 	</dependencies>
 
 	<profiles>
@@ -100,9 +107,7 @@
 								</goals>
 								<configuration>
 									<classifier>spring-boot</classifier>
-									<mainClass>
-										com.docomodigital.exerciseapi.ExerciseApiApplication
-									</mainClass>
+									<mainClass>com.docomodigital.exerciseapi.ExerciseApiApplication</mainClass>
 								</configuration>
 							</execution>
 						</executions>
@@ -119,20 +124,46 @@
 				<version>${swagger-codegen-maven-plugin-version}</version>
 				<executions>
 					<execution>
+						<id>generate-api-models</id>
 						<phase>generate-sources</phase>
 						<goals>
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>${project.basedir}/src/main/resources/schema/swagger/example-api-swagger-spec.yml</inputSpec>
+							<inputSpec>${swagger.file.location}</inputSpec>
 							<language>spring</language>
 							<generateApis>true</generateApis>
 							<generateModels>true</generateModels>
 							<generateModelDocumentation>false</generateModelDocumentation>
 							<generateModelTests>false</generateModelTests>
 							<generateSupportingFiles>true</generateSupportingFiles>
-							<modelPackage>com.docomodigital.exerciseapi.swagger.model</modelPackage>
-							<apiPackage>com.docomodigital.exerciseapi.swagger.api</apiPackage>
+							<modelPackage>com.docomodigital.exerciseapi.swagger.models</modelPackage>
+							<apiPackage>com.docomodigital.exerciseapi.swagger.apis</apiPackage>
+							<configOptions>
+								<dateLibrary>java8</dateLibrary>
+								<sourceFolder>swagger</sourceFolder>
+								<interfaceOnly>true</interfaceOnly>
+								<useTags>true</useTags>
+							</configOptions>
+							<output>${project.build.directory}/generated-sources/java</output>
+						</configuration>
+					</execution>
+					<execution>
+						<id>generate-api-dtos</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>${swagger.file.location}</inputSpec>
+							<language>spring</language>
+							<generateApis>false</generateApis>
+							<generateModels>true</generateModels>
+							<generateModelDocumentation>false</generateModelDocumentation>
+							<generateModelTests>false</generateModelTests>
+							<generateSupportingFiles>true</generateSupportingFiles>
+							<modelPackage>com.docomodigital.exerciseapi.swagger.dtos</modelPackage>
+							<modelNameSuffix>DTO</modelNameSuffix>
 							<configOptions>
 								<dateLibrary>java8</dateLibrary>
 								<sourceFolder>swagger</sourceFolder>

@@ -1,4 +1,4 @@
-package com.docomodigital.exerciseapi.web;
+package com.docomodigital.exerciseapi.controllers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 
 import com.docomodigital.exerciseapi.common.exception.ApiException;
 import com.docomodigital.exerciseapi.common.exception.ExceptionEnums;
-import com.docomodigital.exerciseapi.swagger.model.ResponseBase;
+import com.docomodigital.exerciseapi.swagger.models.ResponseBase;
 
 public abstract class AbstractController {
 	Logger logger = LoggerFactory.getLogger(this.getClass());

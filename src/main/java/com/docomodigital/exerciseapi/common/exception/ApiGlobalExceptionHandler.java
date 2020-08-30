@@ -24,7 +24,7 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import com.docomodigital.exerciseapi.common.utils.ApiConstants;
-import com.docomodigital.exerciseapi.swagger.model.ResponseBase;
+import com.docomodigital.exerciseapi.swagger.models.ResponseBase;
 
 @ControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
