@@ -1,6 +1,7 @@
 package com.docomodigital.exerciseapi.dal.repository;
 
-import java.util.*;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

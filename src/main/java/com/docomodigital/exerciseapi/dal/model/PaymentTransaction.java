@@ -8,6 +8,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -26,9 +28,25 @@ public class PaymentTransaction implements Serializable {
 	@Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "payment_transaction_id_seq_generator")
     @SequenceGenerator(name="payment_transaction_id_seq_generator", sequenceName = "payment_transaction_id_seq")
-	private Integer id;
+    private Integer id;
 
 	private double amount;
+
+	@Column(name="closed_at")
+	private OffsetDateTime closedAt;
+
+	@Column(name="created_at")
+	private OffsetDateTime createdAt;
+
+	@Column(name="failure_message")
+	private String failureMessage;
+
+	private String kind;
+
+	private String msisdn;
+
+	@Column(name="order_id")
+	private String orderId;
 
 	@Column(name="phone_number")
 	private String phoneNumber;
@@ -36,14 +54,18 @@ public class PaymentTransaction implements Serializable {
 	@Column(name="product_id")
 	private String productId;
 
-	@Column(name="transaction_begin")
-	private OffsetDateTime transactionBegin;
+	@Column(name="refund_reason")
+	private String refundReason;
 
-	@Column(name="transaction_end")
-	private OffsetDateTime transactionEnd;
+	private String status;
 
 	@Column(name="transaction_id")
 	private String transactionId;
+
+	//uni-directional many-to-one association to ConstantEnum
+	@ManyToOne
+	@JoinColumn(name="currency")
+	private ConstantEnum constantEnum;
 
 	public PaymentTransaction() {
 	    //
@@ -65,6 +87,54 @@ public class PaymentTransaction implements Serializable {
 		this.amount = amount;
 	}
 
+	public OffsetDateTime getClosedAt() {
+		return this.closedAt;
+	}
+
+	public void setClosedAt(OffsetDateTime closedAt) {
+		this.closedAt = closedAt;
+	}
+
+	public OffsetDateTime getCreatedAt() {
+		return this.createdAt;
+	}
+
+	public void setCreatedAt(OffsetDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public String getFailureMessage() {
+		return this.failureMessage;
+	}
+
+	public void setFailureMessage(String failureMessage) {
+		this.failureMessage = failureMessage;
+	}
+
+	public String getKind() {
+		return this.kind;
+	}
+
+	public void setKind(String kind) {
+		this.kind = kind;
+	}
+
+	public String getMsisdn() {
+		return this.msisdn;
+	}
+
+	public void setMsisdn(String msisdn) {
+		this.msisdn = msisdn;
+	}
+
+	public String getOrderId() {
+		return this.orderId;
+	}
+
+	public void setOrderId(String orderId) {
+		this.orderId = orderId;
+	}
+
 	public String getPhoneNumber() {
 		return this.phoneNumber;
 	}
@@ -81,20 +151,20 @@ public class PaymentTransaction implements Serializable {
 		this.productId = productId;
 	}
 
-	public OffsetDateTime getTransactionBegin() {
-		return this.transactionBegin;
+	public String getRefundReason() {
+		return this.refundReason;
 	}
 
-	public void setTransactionBegin(OffsetDateTime transactionBegin) {
-		this.transactionBegin = transactionBegin;
+	public void setRefundReason(String refundReason) {
+		this.refundReason = refundReason;
 	}
 
-	public OffsetDateTime getTransactionEnd() {
-		return this.transactionEnd;
+	public String getStatus() {
+		return this.status;
 	}
 
-	public void setTransactionEnd(OffsetDateTime transactionEnd) {
-		this.transactionEnd = transactionEnd;
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 	public String getTransactionId() {
@@ -103,6 +173,14 @@ public class PaymentTransaction implements Serializable {
 
 	public void setTransactionId(String transactionId) {
 		this.transactionId = transactionId;
+	}
+
+	public ConstantEnum getConstantEnum() {
+		return this.constantEnum;
+	}
+
+	public void setConstantEnum(ConstantEnum constantEnum) {
+		this.constantEnum = constantEnum;
 	}
 
 }

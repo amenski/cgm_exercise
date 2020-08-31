@@ -1,10 +1,15 @@
 package com.docomodigital.exerciseapi.common.utils;
 
 public class ApiConstants {
-
-    // transaction status
+    
+    // request type
+    public enum KIND {
+        PURCHASE, REFUND;
+    }
+    
+    // request status
     public enum TX_STATUS {
-        PAID, REFUND
+        SUCCESS, FAILURE, UNSURE;
     }
     
     // log

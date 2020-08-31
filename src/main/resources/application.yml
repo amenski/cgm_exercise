@@ -1,3 +1,5 @@
+server:
+   port: 9001
 #==== spring related ======#
 spring:
    profiles:
@@ -24,3 +26,7 @@ spring:
 #      org.hibernate.SQL: TRACE
 #      org.hibernate.type: debug
 #      org.springframework.security: DEBUG
+
+app:
+   telecom-api:
+      url: http://localhost:${server.port}}/mock/purchase

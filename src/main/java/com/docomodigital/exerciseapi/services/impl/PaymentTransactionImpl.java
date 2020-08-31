@@ -3,6 +3,8 @@ package com.docomodigital.exerciseapi.services.impl;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -18,9 +20,13 @@ import com.docomodigital.exerciseapi.common.annotations.Loggable;
 import com.docomodigital.exerciseapi.common.exception.ApiException;
 import com.docomodigital.exerciseapi.common.exception.ExceptionEnums;
 import com.docomodigital.exerciseapi.common.utils.ApiConstants;
+import com.docomodigital.exerciseapi.dal.model.InternationalPhoneCode;
 import com.docomodigital.exerciseapi.dal.model.PaymentTransaction;
+import com.docomodigital.exerciseapi.dal.repository.ConstantsEnumRepository;
+import com.docomodigital.exerciseapi.dal.repository.InternationalPhoneCodeRepository;
 import com.docomodigital.exerciseapi.dal.repository.PaymentTransactionRepository;
 import com.docomodigital.exerciseapi.services.IPaymentTransaction;
+import com.docomodigital.exerciseapi.swagger.dtos.ModelEnumIdValueDTO;
 import com.docomodigital.exerciseapi.swagger.dtos.ModelPaymentTransactionDTO;
 import com.docomodigital.exerciseapi.swagger.dtos.ModelPaymentTransactionListDTO;
 import com.docomodigital.exerciseapi.swagger.dtos.PurchaseSaveRequestDTO;
@@ -37,30 +43,41 @@ public class PaymentTransactionImpl implements IPaymentTransaction {
     private HttpServletRequest servletRequest;
     
     @Autowired
+    private ConstantsEnumRepository enumRepository;
+    
+    @Autowired
+    private InternationalPhoneCodeRepository internationalPhoneCodeRepository;
+    
+    @Autowired
     private ModelMapper mapper;
     
     @Override
     @Loggable
     public boolean purchase(PurchaseSaveRequestDTO body) throws ApiException {
         try{
-            OffsetDateTime txBeginTime = OffsetDateTime.now();
-            if(Objects.isNull(body)) {
-                throw ExceptionEnums.VALIDATION_EXCEPTION.get().message("Invalid purchase request body.");
+            OffsetDateTime now = OffsetDateTime.now();
+            if(Objects.isNull(body) || "".equals(body.getProductId())) {
+                throw ExceptionEnums.VALIDATION_EXCEPTION.get().message("Invalid purchase request data.");
             }
             
             if(isNegative(body.getAmount())) {
                 throw ExceptionEnums.NEGATIVE_AMOUNT_EXCEPTION.get();
             }
             
-            // TODO call external api to do the transaction and the save localy
+            if(!validCurrency(body)) {
+                throw ExceptionEnums.INVALID_CURRENCY_EXCEPTION.get();
+            }
+            
+            // TODO call external api to do the transaction and the save localy, how to handle d/t types of exceptions
             
             PaymentTransaction transaction = new PaymentTransaction();
             transaction.setPhoneNumber(body.getPhoneNumber());
             transaction.setProductId(body.getProductId());
-            transaction.setTransactionBegin(txBeginTime);
-            transaction.setTransactionEnd(OffsetDateTime.now());
+            transaction.setCreatedAt(now);
+            transaction.setClosedAt(now);
             transaction.setAmount(body.getAmount());
-            transaction.setTransactionId(servletRequest.getHeader(ApiConstants.TRANSACTION_ID_KEY)); 
+            transaction.setKind(ApiConstants.KIND.PURCHASE.name());
+            transaction.setTransactionId(servletRequest.getHeader(ApiConstants.TRANSACTION_ID_KEY));
             
             paymentTransactionRepository.save(transaction);
             return true;
@@ -100,6 +117,46 @@ public class PaymentTransactionImpl implements IPaymentTransaction {
     }
     
     
+    /**
+     * assuming that phoneNumber has variable prefix(e.g. +1, +39, +251 etc) and 10 numerals after the prefix,
+     * validates if the currency is allowed for the current areaCode.
+     * 
+     * @param body
+     * @return
+     * @throws ApiException 
+     */
+    private boolean validCurrency(PurchaseSaveRequestDTO body) throws ApiException {
+        if(!isValidPhoneNumber(body.getPhoneNumber())) 
+            return false;
+        
+        int start = body.getPhoneNumber().length() - 10;
+        String areaCode = body.getPhoneNumber().substring(start);
+        InternationalPhoneCode row = internationalPhoneCodeRepository.findByAreaCode(areaCode).orElseThrow(ExceptionEnums.AREA_CODE_NOT_FOUND);
+        
+        // request should contain enumId of the currency type, so should be an integer
+        Optional<Integer> currencyEnumId = Optional.ofNullable(body.getCurrency()).map(ModelEnumIdValueDTO::getId);
+        if(currencyEnumId.isPresent() && row != null) {
+            return row.getConstantEnum().getEnumCode().equals(currencyEnumId.get());
+        }
+        return false;
+    }
+    
+    /**
+     * Assuming that a phone number is of an international format, having `+` sign as prefix
+     * and with no spaces in between the numbers, validates if a string is a valid phone number.
+     * 
+     * @param phone
+     * @return resulting boolean
+     */
+    private boolean isValidPhoneNumber(String phone) {
+        if(phone == null || "".equals(phone.trim())) {
+            logger.error(ApiConstants.PARAMETER_2, "isValidPhoneNumber()", "Invalid phone number.");
+            return false;
+        }
+        
+        return Pattern.matches("\\+\\d{10,15}", phone);
+    }
+
     private boolean isNegative(double value) {
         return Double.doubleToRawLongBits(value) < 0;
     }

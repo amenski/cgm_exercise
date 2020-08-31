@@ -20,5 +20,4 @@ public class ExerciseApiApplication {
     public static void main(String[] args) {
         SpringApplication.run(ExerciseApiApplication.class, args);
     }
-
 }
