@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class ExternalApiMock {
 
     @RequestMapping(value = "purchase", method = RequestMethod.POST)
-    public ResponseEntity<ResponseModelMock> purchaseMock(@RequestBody RequestModelMock request) {
-        ResponseModelMock response = new ResponseModelMock();
-        response.setOrderId(generateRandomCode());
-        response.setMsisdn(generateRandomCode());
-        
-        return new ResponseEntity<>(response,HttpStatus.OK);
+    public ResponseEntity<ResponseWrapper<ResponseModelMock>> purchaseMock(@RequestBody RequestModelMock request) {
+        ResponseModelMock entityResult = new ResponseModelMock();
+        entityResult.setOrderId(generateRandomCode());
+        entityResult.setMsisdn(generateRandomCode());
+        entityResult.setResult("SUCCESS");
+        return new ResponseEntity<>(new ResponseWrapper<>(entityResult), HttpStatus.OK);
     }
 
     @RequestMapping(value = "refund", method = RequestMethod.POST)
@@ -32,7 +32,7 @@ public class ExternalApiMock {
     private static String generateRandomCode() {
         char[] charList = ALLOWED_CHARS.toCharArray();
         StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < 6; i++) {
+        for(int i = 0; i < 15; i++) {
             sb.append(charList[random.nextInt(ALLOWED_CHARS.length())]);
         }
         

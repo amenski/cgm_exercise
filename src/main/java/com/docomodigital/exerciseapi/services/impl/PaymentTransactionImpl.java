@@ -8,23 +8,23 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.hibernate.exception.ConstraintViolationException;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.docomodigital.exerciseapi.common.annotations.Loggable;
 import com.docomodigital.exerciseapi.common.exception.ApiException;
 import com.docomodigital.exerciseapi.common.exception.ExceptionEnums;
 import com.docomodigital.exerciseapi.common.utils.ApiConstants;
+import com.docomodigital.exerciseapi.dal.model.ConstantEnum;
 import com.docomodigital.exerciseapi.dal.model.InternationalPhoneCode;
 import com.docomodigital.exerciseapi.dal.model.PaymentTransaction;
 import com.docomodigital.exerciseapi.dal.repository.ConstantsEnumRepository;
 import com.docomodigital.exerciseapi.dal.repository.InternationalPhoneCodeRepository;
 import com.docomodigital.exerciseapi.dal.repository.PaymentTransactionRepository;
+import com.docomodigital.exerciseapi.services.IExternalApiService;
 import com.docomodigital.exerciseapi.services.IPaymentTransaction;
 import com.docomodigital.exerciseapi.swagger.dtos.ModelEnumIdValueDTO;
 import com.docomodigital.exerciseapi.swagger.dtos.ModelPaymentTransactionDTO;
@@ -49,6 +49,9 @@ public class PaymentTransactionImpl implements IPaymentTransaction {
     private InternationalPhoneCodeRepository internationalPhoneCodeRepository;
     
     @Autowired
+    private IExternalApiService externalApiService;
+    
+    @Autowired
     private ModelMapper mapper;
     
     @Override
@@ -68,21 +71,27 @@ public class PaymentTransactionImpl implements IPaymentTransaction {
                 throw ExceptionEnums.INVALID_CURRENCY_EXCEPTION.get();
             }
             
-            // TODO call external api to do the transaction and the save localy, how to handle d/t types of exceptions
+            ModelPaymentTransactionDTO response = externalApiService.executePurchase(body.getPhoneNumber(), body.getAmount(), body.getCurrency().getValue());
             
             PaymentTransaction transaction = new PaymentTransaction();
             transaction.setPhoneNumber(body.getPhoneNumber());
             transaction.setProductId(body.getProductId());
             transaction.setCreatedAt(now);
-            transaction.setClosedAt(now);
+            transaction.setUpdatedAt(now);
             transaction.setAmount(body.getAmount());
             transaction.setKind(ApiConstants.KIND.PURCHASE.name());
             transaction.setTransactionId(servletRequest.getHeader(ApiConstants.TRANSACTION_ID_KEY));
+            transaction.setStatus(ApiConstants.TX_STATUS.UNSURE.name());
+            
+            if(Objects.nonNull(response)) {
+                transaction.setFailureMessage(response.getFailureMessage());
+                transaction.setMsisdn(response.getMsisdn());
+                transaction.setOrderId(response.getOrderId());
+                transaction.setStatus(response.getStatus());
+            }
             
             paymentTransactionRepository.save(transaction);
             return true;
-        } catch(ConstraintViolationException | DataIntegrityViolationException e) {
-            throw ExceptionEnums.VALIDATION_EXCEPTION.get();
         } catch (Exception ex) {
             throw ex;
         }
@@ -112,13 +121,33 @@ public class PaymentTransactionImpl implements IPaymentTransaction {
     @Override
     @Loggable
     public boolean refund(String transactionId) throws ApiException {
-        // TODO Auto-generated method stub
-        return false;
+        try{
+            OffsetDateTime now = OffsetDateTime.now();
+            if(transactionId == null || "".equals(transactionId.trim())) {
+                throw ExceptionEnums.VALIDATION_EXCEPTION.get().message("Invalid TRANSACTOIN_ID, please try again.");
+            }
+            PaymentTransaction paymentTransaction = paymentTransactionRepository.findByTransactionId(transactionId).orElseThrow(ExceptionEnums.TRANSACTION_NOT_FOUND);
+            ModelPaymentTransactionDTO response = externalApiService.executeRefund(paymentTransaction.getOrderId());
+            
+            paymentTransaction.setUpdatedAt(now);
+            paymentTransaction.setKind(ApiConstants.KIND.REFUND.name());
+            paymentTransaction.setStatus(ApiConstants.TX_STATUS.UNSURE.name());
+            
+            if(Objects.nonNull(response)) {
+                paymentTransaction.setFailureMessage(response.getFailureMessage());
+                paymentTransaction.setStatus(response.getStatus());
+            }
+            
+            paymentTransactionRepository.save(paymentTransaction);
+            return true;
+        } catch (Exception ex) {
+            throw ex;
+        }
     }
     
     
     /**
-     * assuming that phoneNumber has variable prefix(e.g. +1, +39, +251 etc) and 10 numerals after the prefix,
+     * Assuming that phoneNumber has variable prefix(e.g. +1, +39, +251 etc) and 10 numerals after the prefix,
      * validates if the currency is allowed for the current areaCode.
      * 
      * @param body
@@ -129,11 +158,19 @@ public class PaymentTransactionImpl implements IPaymentTransaction {
         if(!isValidPhoneNumber(body.getPhoneNumber())) 
             return false;
         
+        ModelEnumIdValueDTO enumDto = body.getCurrency();
+        List<ConstantEnum> currencyTypeList = enumRepository.findEnumByTypeAndStatus(ApiConstants.CONSTANT_ENUM_TYPES.CURRENCY_TYPE.name());
+        boolean currencyIdFound = currencyTypeList.stream().anyMatch(row -> row.getEnumCode().equals(enumDto.getId()));
+        if(Integer.signum(enumDto.getId()) != 1 || !currencyIdFound) {
+            logger.error(ApiConstants.PARAMETER_2, "validCurrency()", "Invalid currency type found.");
+            return false;
+        }
+        
         int start = body.getPhoneNumber().length() - 10;
         String areaCode = body.getPhoneNumber().substring(start);
         InternationalPhoneCode row = internationalPhoneCodeRepository.findByAreaCode(areaCode).orElseThrow(ExceptionEnums.AREA_CODE_NOT_FOUND);
         
-        // request should contain enumId of the currency type, so should be an integer
+        // request contains enumId of the currency type, so should be an integer
         Optional<Integer> currencyEnumId = Optional.ofNullable(body.getCurrency()).map(ModelEnumIdValueDTO::getId);
         if(currencyEnumId.isPresent() && row != null) {
             return row.getConstantEnum().getEnumCode().equals(currencyEnumId.get());

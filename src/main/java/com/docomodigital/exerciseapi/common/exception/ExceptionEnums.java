@@ -18,6 +18,7 @@ public enum ExceptionEnums implements Supplier<ApiException> {
 
     RECORD_NOT_FOUND(new ApiException(HttpStatus.NOT_FOUND, 404001, "Record not found.")),
     AREA_CODE_NOT_FOUND(new ApiException(HttpStatus.NOT_FOUND, 404002, "Area code not found.")),
+    TRANSACTION_NOT_FOUND(new ApiException(HttpStatus.NOT_FOUND, 404003, "Transaction data not found.")),
 
     UNHANDLED_EXCEPTION(new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, 500001, "Unhandled exception has occured.")),
     EXTERNAL_API_EXCEPTION(new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, 500002, "Something wrong happened while calling external api, please contact system administrator."));

@@ -31,7 +31,7 @@ create table payment_transaction (
 "failure_message" varchar(4000),
 "status" varchar(20),
 "created_at" timestamp not null,
-"closed_at" timestamp not null
+"updated_at" timestamp not null
 );
 alter table payment_transaction add constraint "fk_pay_transaction_const_enum_1" foreign key("currency") references constant_enum("enum_code");
 alter table payment_transaction add constraint "pk_payment_transaction_id" primary key ("id");

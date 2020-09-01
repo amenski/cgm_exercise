@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <property name="LOG_PATH" value="C:/logs" />
-    <property name="LOG_FILENAME" value="com.docomodigital.example-api.log" />
+    <property name="LOG_FILENAME" value="com.docomodigital.example-api" />
     <property name="LOG_MAX_FILE_SIZE" value="50MB" />
     <property name="LOG_MAX_HISTORY" value="10" />
     <property name="LOG_TOTAL_SIZE_CAP" value="500MB" />

@@ -50,8 +50,8 @@ paths:
             $ref: '#/responses/response-unauthorized'
           '500':
             $ref: '#/responses/response-internal-server-error-500'
-  '/v1/purchases/{transaction-id}/refund':
-      put:
+  '/v1/purchases/refund':
+      post:
         operationId: refundPayment
         summary: 'Refund payment'
         tags:
@@ -59,7 +59,11 @@ paths:
         consumes:
         - application/json
         parameters:
-          - $ref: '#/parameters/transaction-id-in-path'
+          - name: transaction-id
+            in: body
+            required: true
+            schema:
+              type: string
         responses:
           '200':
             description: ''
@@ -70,11 +74,6 @@ paths:
           '500':
             $ref: '#/responses/response-internal-server-error-500'
 parameters:
-  transaction-id-in-path:
-    in: path
-    name: transaction-id
-    type: string
-    required: true
   customer-id-in-path:
     in: path
     name: customer-id

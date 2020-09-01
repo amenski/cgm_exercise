@@ -32,8 +32,8 @@ public class PaymentTransaction implements Serializable {
 
 	private double amount;
 
-	@Column(name="closed_at")
-	private OffsetDateTime closedAt;
+	@Column(name="updated_at")
+	private OffsetDateTime updatedAt;
 
 	@Column(name="created_at")
 	private OffsetDateTime createdAt;
@@ -87,12 +87,12 @@ public class PaymentTransaction implements Serializable {
 		this.amount = amount;
 	}
 
-	public OffsetDateTime getClosedAt() {
-		return this.closedAt;
+	public OffsetDateTime getUpdatedAt() {
+		return this.updatedAt;
 	}
 
-	public void setClosedAt(OffsetDateTime closedAt) {
-		this.closedAt = closedAt;
+	public void setUpdatedAt(OffsetDateTime updatedAt) {
+		this.updatedAt = updatedAt;
 	}
 
 	public OffsetDateTime getCreatedAt() {

@@ -80,8 +80,7 @@ public class PurchasesConstroller extends AbstractController implements Purchase
 
     @Override
     public ResponseEntity<ResponseBase> refundPayment(
-            @ApiParam(value = "",required=true) @PathVariable("transaction-id") String transactionId) 
-    {
+            @ApiParam(value = "" ,required=true )  @Valid @RequestBody String transactionId) {
         Class<ResponseBase> responseClass = ResponseBase.class;
         ResponseBase response = null;
         HttpStatus status = HttpStatus.OK;

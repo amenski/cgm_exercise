@@ -9,7 +9,11 @@ public class ApiConstants {
     
     // request status
     public enum TX_STATUS {
-        SUCCESS, FAILURE, UNSURE;
+        SUCCESS, FAIL, UNSURE;
+    }
+    
+    public enum CONSTANT_ENUM_TYPES {
+        CURRENCY_TYPE
     }
     
     // log

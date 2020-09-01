@@ -7,5 +7,5 @@ public interface IExternalApiService {
 
     public ModelPaymentTransactionDTO executePurchase(String phoneNumber, Double amount, String currency) throws ApiException;
 
-    public boolean executeRefund(String orderId) throws ApiException;
+    public ModelPaymentTransactionDTO executeRefund(String orderId) throws ApiException;
 }
