@@ -1,0 +1,121 @@
+{
+	"info": {
+		"_postman_id": "9932e413-3e48-4316-822d-1dbb4fce37cd",
+		"name": "Docomo_exercise_api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "POST -  Purchase",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"phoneNumber\": \"333\",\r\n    \"productId\": \"1234\",\r\n    \"amount\": 40,\r\n    \"currency\": {\r\n        \"id\": 111\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:9000/v1/purchase",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"v1",
+						"purchase"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST - mock purchase",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"phoneNumber\": \"333\",\r\n    \"amount\": 22,\r\n    \"currency\": \"EUR\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:9000/mock/purchase",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"mock",
+						"purchase"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST - Refund",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"transactionId\": \"xxxxxxx\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:9000/v1/purchases/refund",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"v1",
+						"purchases",
+						"refund"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET - Get transaction by customer",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:9000/v1/purchases/:phone-number",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"v1",
+						"purchases",
+						":phone-number"
+					],
+					"variable": [
+						{
+							"key": "phone-number",
+							"value": "222"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
