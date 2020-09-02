@@ -102,7 +102,7 @@ public class PaymentTransactionImpl implements IPaymentTransaction {
     public ModelPaymentTransactionListDTO getTransactionsForCustomer(String phoneNumber) throws ApiException {
         try{
             if("".equals(phoneNumber.trim())) {
-                throw ExceptionEnums.VALIDATION_EXCEPTION.get();
+                throw ExceptionEnums.VALIDATION_EXCEPTION.get().message("Invalid phone-number provided.");
             }
             
             ModelPaymentTransactionListDTO listDto = new ModelPaymentTransactionListDTO();

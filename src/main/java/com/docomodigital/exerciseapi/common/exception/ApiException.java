@@ -4,12 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.HttpStatus;
 
 public class ApiException extends Exception {
 	private static final long serialVersionUID = -5464526854597284442L;
 
-	private HttpStatus httpCode;
+	private int httpCode;
 	private int errorCode;
 	private String message;
 	private List<String> errors;
@@ -19,21 +18,21 @@ public class ApiException extends Exception {
 		this.message = message;
 	}
 
-	public ApiException(HttpStatus httpCode, int internalCode, String message) {
+	public ApiException(int httpCode, int internalCode, String message) {
 		super();
 		this.httpCode = httpCode;
 		this.errorCode = internalCode;
 		this.message = message;
 	}
 	
-	public ApiException(HttpStatus httpCode, String message, List<String> errors) {
+	public ApiException(int httpCode, String message, List<String> errors) {
 		super();
 		this.httpCode = httpCode;
 		this.message = message;
 		this.errors = errors;
 	}
 
-	public ApiException(HttpStatus httpCode, int internalCode, String message, List<String> errors) {
+	public ApiException(int httpCode, int internalCode, String message, List<String> errors) {
 		super();
 		this.httpCode = httpCode;
 		this.errorCode = internalCode;
@@ -41,11 +40,11 @@ public class ApiException extends Exception {
 		this.errors = errors;
 	}
 	
-	public HttpStatus getHttpCode() {
+	public int getHttpCode() {
 		return httpCode;
 	}
 
-	public void setHttpCode(HttpStatus httpCode) {
+	public void setHttpCode(int httpCode) {
 		this.httpCode = httpCode;
 	}
 

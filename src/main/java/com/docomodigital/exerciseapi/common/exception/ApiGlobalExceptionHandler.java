@@ -64,7 +64,7 @@ public class ApiGlobalExceptionHandler extends ResponseEntityExceptionHandler{
 	public ResponseEntity<Object> handleEthException(ApiException ex) {
 		String methodName = "handleEthException()";
 		log.error(ApiConstants.PARAMETER_2, methodName, ex.getMessage());
-		HttpStatus status = ex.getHttpCode();
+		HttpStatus status = HttpStatus.valueOf(ex.getHttpCode());
 		Integer internalCode = ex.getErrorCode() > 0 ? ex.getErrorCode() : null;
 		return buildResponseEntity(status, null, internalCode, ex.getMessage(), Arrays.asList(ex.getErrors()));
 	}

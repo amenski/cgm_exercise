@@ -35,17 +35,17 @@ public class PurchasesConstroller extends AbstractController implements Purchase
     @Override
     @Loggable
     public ResponseEntity<ResponseModelPaymentTransactionList> getAllTransactions(
-            @ApiParam(value = "", required = true) @PathVariable("customer-id") String customerId) 
+            @ApiParam(value = "",required=true) @PathVariable("phone-number") String phoneNumber) 
     {
         Class<ResponseModelPaymentTransactionList> responseClass = ResponseModelPaymentTransactionList.class;
         ResponseModelPaymentTransactionList response = null;
         HttpStatus status = HttpStatus.OK;
         try {
-            ModelPaymentTransactionListDTO txDtoList = paymentTransactionService.getTransactionsForCustomer(customerId);
+            ModelPaymentTransactionListDTO txDtoList = paymentTransactionService.getTransactionsForCustomer(phoneNumber);
             ModelPaymentTransactionList txList = mapper.map(txDtoList, ModelPaymentTransactionList.class);
             response = fillSuccessResponse(new ResponseModelPaymentTransactionList().returnValue(txList));
         } catch (ApiException ex) {
-            status = ex.getHttpCode();
+            status = HttpStatus.valueOf(ex.getHttpCode());
             response = fillFailResponseApiException(responseClass, ex);
         } catch (Exception ex) {
             status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -58,8 +58,7 @@ public class PurchasesConstroller extends AbstractController implements Purchase
     @Override
     @Loggable
     public ResponseEntity<ResponseBase> purchaseProduct(
-            @ApiParam(value = "") @Valid @RequestBody PurchaseSaveRequest body) 
-    {
+            @ApiParam(value = "") @Valid @RequestBody PurchaseSaveRequest body) {
         Class<ResponseBase> responseClass = ResponseBase.class;
         ResponseBase response = null;
         HttpStatus status = HttpStatus.OK;
@@ -68,7 +67,7 @@ public class PurchasesConstroller extends AbstractController implements Purchase
             paymentTransactionService.purchase(dtoBody);
             response = fillSuccessResponse(new ResponseBase());
         } catch (ApiException ex) {
-            status = ex.getHttpCode();
+            status = HttpStatus.valueOf(ex.getHttpCode());
             response = fillFailResponseApiException(responseClass, ex);
         } catch (Exception ex) {
             status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -88,7 +87,7 @@ public class PurchasesConstroller extends AbstractController implements Purchase
             paymentTransactionService.refund(transactionId);
             response = fillSuccessResponse(new ResponseBase());
         } catch (ApiException ex) {
-            status = ex.getHttpCode();
+            status = HttpStatus.valueOf(ex.getHttpCode());
             response = fillFailResponseApiException(responseClass, ex);
         } catch (Exception ex) {
             status = HttpStatus.INTERNAL_SERVER_ERROR;

@@ -5,23 +5,23 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import org.springframework.http.HttpStatus;
+import org.apache.http.HttpStatus;
 
 /**
  * a supplier of custom exceptions
  */
 public enum ExceptionEnums implements Supplier<ApiException> {
 
-    VALIDATION_EXCEPTION(new ApiException(HttpStatus.BAD_REQUEST, 400001, "The input data has a mistake, please try again.")),
-    NEGATIVE_AMOUNT_EXCEPTION(new ApiException(HttpStatus.BAD_REQUEST, 400002, "Amount can not be less or equal to zero.")),
-    INVALID_CURRENCY_EXCEPTION(new ApiException(HttpStatus.BAD_REQUEST, 400003, "Wrong currency type provided.")),
+    VALIDATION_EXCEPTION(new ApiException(HttpStatus.SC_BAD_REQUEST, 400001, "The input data has a mistake, please try again.")),
+    NEGATIVE_AMOUNT_EXCEPTION(new ApiException(HttpStatus.SC_BAD_REQUEST, 400002, "Amount can not be less or equal to zero.")),
+    INVALID_CURRENCY_EXCEPTION(new ApiException(HttpStatus.SC_BAD_REQUEST, 400003, "Wrong currency type provided.")),
 
-    RECORD_NOT_FOUND(new ApiException(HttpStatus.NOT_FOUND, 404001, "Record not found.")),
-    AREA_CODE_NOT_FOUND(new ApiException(HttpStatus.NOT_FOUND, 404002, "Area code not found.")),
-    TRANSACTION_NOT_FOUND(new ApiException(HttpStatus.NOT_FOUND, 404003, "Transaction data not found.")),
+    RECORD_NOT_FOUND(new ApiException(HttpStatus.SC_NOT_FOUND, 404001, "Record not found.")),
+    AREA_CODE_NOT_FOUND(new ApiException(HttpStatus.SC_NOT_FOUND, 404002, "Area code not found.")),
+    TRANSACTION_NOT_FOUND(new ApiException(HttpStatus.SC_NOT_FOUND, 404003, "Transaction data not found.")),
 
-    UNHANDLED_EXCEPTION(new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, 500001, "Unhandled exception has occured.")),
-    EXTERNAL_API_EXCEPTION(new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, 500002, "Something wrong happened while calling external api, please contact system administrator."));
+    UNHANDLED_EXCEPTION(new ApiException(HttpStatus.SC_INTERNAL_SERVER_ERROR, 500001, "Unhandled exception has occured.")),
+    EXTERNAL_API_EXCEPTION(new ApiException(HttpStatus.SC_INTERNAL_SERVER_ERROR, 500002, "Something wrong happened while calling external api, please contact system administrator."));
 
     
     /// ====== ======///
