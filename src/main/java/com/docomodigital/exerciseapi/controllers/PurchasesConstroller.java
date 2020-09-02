@@ -16,8 +16,10 @@ import com.docomodigital.exerciseapi.services.IPaymentTransaction;
 import com.docomodigital.exerciseapi.swagger.apis.PurchasesApi;
 import com.docomodigital.exerciseapi.swagger.dtos.ModelPaymentTransactionListDTO;
 import com.docomodigital.exerciseapi.swagger.dtos.PurchaseSaveRequestDTO;
+import com.docomodigital.exerciseapi.swagger.dtos.RefundRequestDTO;
 import com.docomodigital.exerciseapi.swagger.models.ModelPaymentTransactionList;
 import com.docomodigital.exerciseapi.swagger.models.PurchaseSaveRequest;
+import com.docomodigital.exerciseapi.swagger.models.RefundRequest;
 import com.docomodigital.exerciseapi.swagger.models.ResponseBase;
 import com.docomodigital.exerciseapi.swagger.models.ResponseModelPaymentTransactionList;
 
@@ -58,7 +60,7 @@ public class PurchasesConstroller extends AbstractController implements Purchase
     @Override
     @Loggable
     public ResponseEntity<ResponseBase> purchaseProduct(
-            @ApiParam(value = "") @Valid @RequestBody PurchaseSaveRequest body) {
+            @ApiParam(value = ""  )  @Valid @RequestBody PurchaseSaveRequest body) {
         Class<ResponseBase> responseClass = ResponseBase.class;
         ResponseBase response = null;
         HttpStatus status = HttpStatus.OK;
@@ -79,12 +81,13 @@ public class PurchasesConstroller extends AbstractController implements Purchase
 
     @Override
     public ResponseEntity<ResponseBase> refundPayment(
-            @ApiParam(value = "" ,required=true )  @Valid @RequestBody String transactionId) {
+            @ApiParam(value = ""  )  @Valid @RequestBody RefundRequest body) {
         Class<ResponseBase> responseClass = ResponseBase.class;
         ResponseBase response = null;
         HttpStatus status = HttpStatus.OK;
         try {
-            paymentTransactionService.refund(transactionId);
+            RefundRequestDTO refund = mapper.map(body, RefundRequestDTO.class);
+            paymentTransactionService.refund(refund);
             response = fillSuccessResponse(new ResponseBase());
         } catch (ApiException ex) {
             status = HttpStatus.valueOf(ex.getHttpCode());

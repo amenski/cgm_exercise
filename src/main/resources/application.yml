@@ -23,10 +23,10 @@ spring:
 # ====== hibernate ====
 #logging:
 #   level:
-#      org.hibernate.SQL: TRACE
-#      org.hibernate.type: debug
+#      org.hibernate.SQL: debug
+#      org.hibernate.type: trace
 #      org.springframework.security: DEBUG
 
 app:
    telecom-api:
-      url: http://localhost:${server.port}}/mock/purchase
+      url: http://localhost:9000/mock

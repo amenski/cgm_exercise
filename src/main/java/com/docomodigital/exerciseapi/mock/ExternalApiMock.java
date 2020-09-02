@@ -23,8 +23,10 @@ public class ExternalApiMock {
     }
 
     @RequestMapping(value = "refund", method = RequestMethod.POST)
-    public ResponseEntity<Object> refundMock(@RequestBody String orderId) {
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<ResponseWrapper<ResponseModelMock>> refundMock(@RequestBody String orderId) {
+        ResponseModelMock entityResult = new ResponseModelMock();
+        entityResult.setResult("SUCCESS");
+        return new ResponseEntity<>(new ResponseWrapper<>(entityResult), HttpStatus.OK);
     }
     
     private static final String ALLOWED_CHARS = "ABCDEFGHIJKLMNOPRSTUVWXYZ0123456789";

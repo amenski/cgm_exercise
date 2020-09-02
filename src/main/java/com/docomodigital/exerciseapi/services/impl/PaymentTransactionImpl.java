@@ -8,9 +8,11 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +32,7 @@ import com.docomodigital.exerciseapi.swagger.dtos.ModelEnumIdValueDTO;
 import com.docomodigital.exerciseapi.swagger.dtos.ModelPaymentTransactionDTO;
 import com.docomodigital.exerciseapi.swagger.dtos.ModelPaymentTransactionListDTO;
 import com.docomodigital.exerciseapi.swagger.dtos.PurchaseSaveRequestDTO;
+import com.docomodigital.exerciseapi.swagger.dtos.RefundRequestDTO;
 
 @Service
 public class PaymentTransactionImpl implements IPaymentTransaction {
@@ -80,8 +83,9 @@ public class PaymentTransactionImpl implements IPaymentTransaction {
             transaction.setUpdatedAt(now);
             transaction.setAmount(body.getAmount());
             transaction.setKind(ApiConstants.KIND.PURCHASE.name());
-            transaction.setTransactionId(servletRequest.getHeader(ApiConstants.TRANSACTION_ID_KEY));
+            transaction.setTransactionId(MDC.get(ApiConstants.UUID_KEY));
             transaction.setStatus(ApiConstants.TX_STATUS.UNSURE.name());
+            transaction.setConstantEnum(new ConstantEnum(body.getCurrency().getId()));
             
             if(Objects.nonNull(response)) {
                 transaction.setFailureMessage(response.getFailureMessage());
@@ -101,7 +105,7 @@ public class PaymentTransactionImpl implements IPaymentTransaction {
     @Loggable
     public ModelPaymentTransactionListDTO getTransactionsForCustomer(String phoneNumber) throws ApiException {
         try{
-            if("".equals(phoneNumber.trim())) {
+            if(!isValidPhoneNumber(phoneNumber)) {
                 throw ExceptionEnums.VALIDATION_EXCEPTION.get().message("Invalid phone-number provided.");
             }
             
@@ -109,7 +113,7 @@ public class PaymentTransactionImpl implements IPaymentTransaction {
             List<PaymentTransaction> txList = paymentTransactionRepository.findByPhoneNumber(phoneNumber);
             txList.stream().forEach(tx -> {
                 ModelPaymentTransactionDTO row = mapper.map(tx, ModelPaymentTransactionDTO.class);
-                listDto.addListItem(row);
+                listDto.addTransactionsItem(row);
             });
             
             return listDto;
@@ -120,18 +124,19 @@ public class PaymentTransactionImpl implements IPaymentTransaction {
 
     @Override
     @Loggable
-    public boolean refund(String transactionId) throws ApiException {
+    public boolean refund(RefundRequestDTO body) throws ApiException {
         try{
             OffsetDateTime now = OffsetDateTime.now();
-            if(transactionId == null || "".equals(transactionId.trim())) {
+            if(Objects.isNull(body) || StringUtils.isBlank(body.getTransactionId())) {
                 throw ExceptionEnums.VALIDATION_EXCEPTION.get().message("Invalid TRANSACTOIN_ID, please try again.");
             }
-            PaymentTransaction paymentTransaction = paymentTransactionRepository.findByTransactionId(transactionId).orElseThrow(ExceptionEnums.TRANSACTION_NOT_FOUND);
+            PaymentTransaction paymentTransaction = paymentTransactionRepository.findByTransactionId(body.getTransactionId().trim()).orElseThrow(ExceptionEnums.TRANSACTION_NOT_FOUND);
             ModelPaymentTransactionDTO response = externalApiService.executeRefund(paymentTransaction.getOrderId());
             
             paymentTransaction.setUpdatedAt(now);
             paymentTransaction.setKind(ApiConstants.KIND.REFUND.name());
             paymentTransaction.setStatus(ApiConstants.TX_STATUS.UNSURE.name());
+            paymentTransaction.setRefundReason(body.getRefundReason());
             
             if(Objects.nonNull(response)) {
                 paymentTransaction.setFailureMessage(response.getFailureMessage());
@@ -166,8 +171,8 @@ public class PaymentTransactionImpl implements IPaymentTransaction {
             return false;
         }
         
-        int start = body.getPhoneNumber().length() - 10;
-        String areaCode = body.getPhoneNumber().substring(start);
+        int end = body.getPhoneNumber().length() - 10;
+        String areaCode = body.getPhoneNumber().substring(0, end);
         InternationalPhoneCode row = internationalPhoneCodeRepository.findByAreaCode(areaCode).orElseThrow(ExceptionEnums.AREA_CODE_NOT_FOUND);
         
         // request contains enumId of the currency type, so should be an integer
@@ -186,7 +191,7 @@ public class PaymentTransactionImpl implements IPaymentTransaction {
      * @return resulting boolean
      */
     private boolean isValidPhoneNumber(String phone) {
-        if(phone == null || "".equals(phone.trim())) {
+        if(StringUtils.isBlank(phone)) {
             logger.error(ApiConstants.PARAMETER_2, "isValidPhoneNumber()", "Invalid phone number.");
             return false;
         }

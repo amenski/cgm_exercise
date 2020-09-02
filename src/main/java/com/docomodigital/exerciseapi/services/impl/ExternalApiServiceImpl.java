@@ -1,6 +1,5 @@
 package com.docomodigital.exerciseapi.services.impl;
 
-import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +30,7 @@ public class ExternalApiServiceImpl implements IExternalApiService {
     @Autowired
     private RestTemplate restTemplate;
 
-    @Value("${app.telecom-api.url:")
+    @Value("${app.telecom-api.url:}")
     private String url;
 
     @Override
@@ -46,10 +45,10 @@ public class ExternalApiServiceImpl implements IExternalApiService {
             request.setPhoneNumber(phoneNumber);
 
             HttpHeaders headers = new HttpHeaders();
-            headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+            headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<RequestModelMock> entity = new HttpEntity<>(request, headers);
 
-            ResponseEntity<ResponseWrapper<ResponseModelMock>> mockResponse = restTemplate.exchange(url,
+            ResponseEntity<ResponseWrapper<ResponseModelMock>> mockResponse = restTemplate.exchange(String.join("/", url, "purchase"),
                     HttpMethod.POST, 
                     entity, 
                     new ParameterizedTypeReference<ResponseWrapper<ResponseModelMock>>() {});
@@ -78,10 +77,10 @@ public class ExternalApiServiceImpl implements IExternalApiService {
         try {
             ModelPaymentTransactionDTO response = new ModelPaymentTransactionDTO();
             HttpHeaders headers = new HttpHeaders();
-            headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-            HttpEntity<String> entity = new HttpEntity<>(headers);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Object> entity = new HttpEntity<>(orderId, headers);
 
-            ResponseEntity<ResponseWrapper<ResponseModelMock>> mockResponse = restTemplate.exchange(url,
+            ResponseEntity<ResponseWrapper<ResponseModelMock>> mockResponse = restTemplate.exchange(String.join("/", url, "refund"),
                     HttpMethod.POST, 
                     entity, 
                     new ParameterizedTypeReference<ResponseWrapper<ResponseModelMock>>() {});

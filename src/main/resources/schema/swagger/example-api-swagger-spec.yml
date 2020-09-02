@@ -59,11 +59,10 @@ paths:
         consumes:
         - application/json
         parameters:
-          - name: transaction-id
+          - name: body
             in: body
-            required: true
             schema:
-              type: string
+              $ref: '#/definitions/refund-request' 
         responses:
           '200':
             description: ''
@@ -129,6 +128,16 @@ definitions:
         - productId
         - amount
         - currency
+    refund-request:
+      type: object
+      properties:
+        transactionId:
+          type: string
+        refundReason:
+          type: string
+      required: 
+        - transactionId
+        - refundReason
     model-payment-transaction:
       type: object
       properties:
@@ -166,7 +175,7 @@ definitions:
     model-payment-transaction-list:
       type: object
       properties:
-        list:
+        transactions:
           type: array
           items: 
             $ref: '#/definitions/model-payment-transaction'

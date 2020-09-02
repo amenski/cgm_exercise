@@ -35,6 +35,10 @@ public class ConstantEnum implements Serializable {
 	public ConstantEnum() {
 	    //
 	}
+	
+	public ConstantEnum(Integer code) {
+	    this.enumCode = code;
+	}
 
 	public Integer getEnumCode() {
 		return this.enumCode;

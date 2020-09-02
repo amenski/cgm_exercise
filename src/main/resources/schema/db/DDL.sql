@@ -48,6 +48,5 @@ create table international_phone_codes (
 "area_code" varchar(250)  not null
 );
 alter table international_phone_codes add constraint "PK_international_phone_codes_id" primary key ("id");
-alter table international_phone_codes add constraint "unique_area_code" unique ("area_code");
 alter table international_phone_codes add constraint "FK_int_phone_codes_to_constant_enum" foreign key("currency") references constant_enum("enum_code");
 
