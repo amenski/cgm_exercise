@@ -16,7 +16,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
-
+    
     @Bean
     ObjectMapper defaultMapper() {
         ObjectMapper mapper = new ObjectMapper();

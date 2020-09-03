@@ -32,6 +32,7 @@ import com.docomodigital.exerciseapi.dal.model.PaymentTransaction;
 import com.docomodigital.exerciseapi.dal.repository.ConstantsEnumRepository;
 import com.docomodigital.exerciseapi.dal.repository.InternationalPhoneCodeRepository;
 import com.docomodigital.exerciseapi.dal.repository.PaymentTransactionRepository;
+import com.docomodigital.exerciseapi.services.impl.ExternalApiServiceImpl;
 import com.docomodigital.exerciseapi.services.impl.PaymentTransactionImpl;
 import com.docomodigital.exerciseapi.swagger.dtos.ModelEnumIdValueDTO;
 import com.docomodigital.exerciseapi.swagger.dtos.ModelPaymentTransactionDTO;
@@ -59,7 +60,7 @@ public class PaymentTransactionImplTest {
     InternationalPhoneCodeRepository internationalPhoneCodeRepository;
     
     @Mock
-    IExternalApiService externalApiService;
+    ExternalApiServiceImpl externalApiService;
     
     @Spy
     ModelMapper mapper = new ModelMapper();
@@ -200,22 +201,21 @@ public class PaymentTransactionImplTest {
         paymentTransactionImpl.refund(buildRefundRequestBody());
     }
     
-//    @Test
-//    public void refundThenExternalApiException() throws Exception {
-//        //MOCKITO
-//        Mockito.when(paymentTransactionRepository.findByTransactionId(anyString())).thenReturn(Optional.of(buildPaymentTransactionList().get(0)));
-//        Mockito.when(externalApiService.executeRefund(anyString())).thenThrow(ExceptionEnums.EXTERNAL_API_EXCEPTION.get());
-//        
-//        thrown.expect(ApiExceptionMatcher.is(ExceptionEnums.EXTERNAL_API_EXCEPTION));
-//        
-//        paymentTransactionImpl.refund(buildRefundRequestBody());
-//    }
+  @Test
+  public void refundThenSuccess() throws Exception {
+      //MOCKITO
+      Mockito.when(paymentTransactionRepository.findByTransactionId(anyString())).thenReturn(Optional.of(buildPaymentTransactionList().get(0)));
+      Mockito.when(externalApiService.executeRefund(anyString())).thenReturn(buildResponseModelPaymentTransactionDTOMock());
+      
+      boolean result = paymentTransactionImpl.refund(buildRefundRequestBody());
+      Assert.assertTrue(result);
+  }
     
     //======  mock objects ====== //
     private static PurchaseSaveRequestDTO buildPurchaseRequestBody() {
         ModelEnumIdValueDTO modelCurrencyEnum = new ModelEnumIdValueDTO();
         modelCurrencyEnum.setId(1000);
-        modelCurrencyEnum.setValue("EUR");
+        modelCurrencyEnum.setValue(CURRENCY);
         
         PurchaseSaveRequestDTO body = new PurchaseSaveRequestDTO();
         body.setAmount(AMOUNT);

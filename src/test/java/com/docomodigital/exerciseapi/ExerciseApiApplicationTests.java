@@ -1,13 +1,15 @@
 package com.docomodigital.exerciseapi;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import org.junit.runners.Suite.SuiteClasses;
 
-@SpringBootTest
-class ExerciseApiApplicationTests {
+import com.docomodigital.exerciseapi.services.ExternalApiServiceImplTest;
+import com.docomodigital.exerciseapi.services.PaymentTransactionImplTest;
 
-	@Test
-	void contextLoads() {
-	}
-
-}
+@RunWith(Suite.class)
+@SuiteClasses({
+    PaymentTransactionImplTest.class, 
+    ExternalApiServiceImplTest.class
+    })
+class ExerciseApiApplicationTests {}

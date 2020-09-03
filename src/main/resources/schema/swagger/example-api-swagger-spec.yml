@@ -1,10 +1,10 @@
 swagger: '2.0'
 info:
   version: 0.0.1
-  title:  Example Api
+  title:  Purchase and Refund Api
   description: ''
-host: 'localhost:8080'
-basePath: /example-api
+host: 'localhost:9000'
+basePath: /
 tags:
   - name: Purchases
     description: 'Purchase a product'
@@ -84,17 +84,22 @@ definitions:
       properties:
         success:
           type: boolean
+          example: 'TRUE | FALSE'
         resultCode:
           type: integer
           format: int32
+          example: 200
         message:
           type: string
+          example: 'Application error message.'
         errors:
           type: array
           items:
             type: string
+            example: 'Exception message.'
         transactionId:
           type: string
+          example: '79d9d9d3c8464e8d85f1184ab8fa4dea'
         type:
           type: string
       discriminator: type
@@ -107,8 +112,10 @@ definitions:
         id: 
           type: integer
           format: int32
+          example: 1000
         value:
           type: string
+          example: EUR
       required:
          - id
     purchase-save-request:
@@ -116,8 +123,10 @@ definitions:
       properties:
         phoneNumber:
           type: string
+          example: '+390000000009'
         productId:
           type: string
+          example: 'XXXXXXXXXX'
         amount:
           type: number
           format: double
@@ -133,8 +142,10 @@ definitions:
       properties:
         transactionId:
           type: string
+          example: '79d9d9d3c8464e8d85f1184ab8fa4dea'
         refundReason:
           type: string
+          example: 'Unintential purchase.'
       required: 
         - transactionId
         - refundReason
@@ -143,16 +154,21 @@ definitions:
       properties:
         phoneNumber:
           type: string
+          example: '+390000000009'
         msisdn:
           type: string
+          example: 'XXXXXXXXXX'
         productId:
           type: string
+          example: 'XXXXXXXXXX'
         transactionId:
           description: A transaction-id generated internally
           type: string
+          example: '79d9d9d3c8464e8d85f1184ab8fa4dea'
         orderId:
           description: An order-id generated on succesful call to telecom API
           type: string
+          example: 'YYYYYYYYYYYY'
         amount:
           type: number
           format: double
@@ -160,16 +176,18 @@ definitions:
           $ref: '#/definitions/model-enum-id-value'
         kind:
           type: string
-        refund_reason:
+          example: 'REFUND | PURCHASE'
+        refundReason:
           type: string
-        failure_message:
+        failureMessage:
           type: string
         status:
           type: string
+          example: 'SUCCESS | FAIL | UNSURE'
         createdAt:
           type: string
           format: date-time
-        closedAt:
+        updatedAt:
           type: string
           format: date-time
     model-payment-transaction-list:

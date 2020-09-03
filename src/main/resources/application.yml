@@ -21,8 +21,9 @@ spring:
 #      driver-class-name: org.postgresql.Driver
 
 # ====== hibernate ====
-#logging:
-#   level:
+logging:
+   level:
+      org.springframework.web: TRACE
 #      org.hibernate.SQL: debug
 #      org.hibernate.type: trace
 #      org.springframework.security: DEBUG
