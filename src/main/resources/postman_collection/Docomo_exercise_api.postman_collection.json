@@ -12,7 +12,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"phoneNumber\": \"333\",\r\n    \"productId\": \"1234\",\r\n    \"amount\": 40,\r\n    \"currency\": {\r\n        \"id\": 111\r\n    }\r\n}",
+					"raw": "{\r\n    \"phoneNumber\": \"+391234567890\",\r\n    \"productId\": \"1234\",\r\n    \"amount\": 40,\r\n    \"currency\": {\r\n        \"id\": 1000\r\n    }\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -68,7 +68,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"transactionId\": \"xxxxxxx\"\r\n}",
+					"raw": "{\r\n    \"transactionId\": \"79d9d9d3c8464e8d85f1184ab8fa4dea\",\r\n    \"refundReason\": \"Unintentional purchase.\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -91,7 +91,7 @@
 			"response": []
 		},
 		{
-			"name": "GET - Get transaction by customer",
+			"name": "GET - Get All transaction by customer",
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -109,8 +109,36 @@
 					"variable": [
 						{
 							"key": "phone-number",
-							"value": "222"
+							"value": "+391234567890"
 						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST - Mock Refurn ",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"orderId\": \"adfasfdasdf\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:9000/mock/refund",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"mock",
+						"refund"
 					]
 				}
 			},
