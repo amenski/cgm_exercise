@@ -2,11 +2,12 @@ package com.docomodigital.exerciseapi.services.impl;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletRequest;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
@@ -43,9 +44,6 @@ public class PaymentTransactionImpl implements IPaymentTransaction {
     private PaymentTransactionRepository paymentTransactionRepository;
     
     @Autowired
-    private HttpServletRequest servletRequest;
-    
-    @Autowired
     private ConstantsEnumRepository enumRepository;
     
     @Autowired
@@ -62,7 +60,7 @@ public class PaymentTransactionImpl implements IPaymentTransaction {
     public boolean purchase(PurchaseSaveRequestDTO body) throws ApiException {
         try{
             OffsetDateTime now = OffsetDateTime.now();
-            if(Objects.isNull(body) || "".equals(body.getProductId())) {
+            if(Objects.isNull(body) || StringUtils.isBlank(body.getProductId())) {
                 throw ExceptionEnums.VALIDATION_EXCEPTION.get().message("Invalid purchase request data.");
             }
             
@@ -70,11 +68,13 @@ public class PaymentTransactionImpl implements IPaymentTransaction {
                 throw ExceptionEnums.NEGATIVE_AMOUNT_EXCEPTION.get();
             }
             
-            if(!validCurrency(body)) {
+            List<ConstantEnum> currencyTypeList = enumRepository.findEnumByTypeAndStatus(ApiConstants.CONSTANT_ENUM_TYPES.CURRENCY_TYPE.name());
+            Map<Integer, ConstantEnum> currencyTypeMap = currencyTypeList.stream().collect(Collectors.toMap(ConstantEnum::getEnumCode, Function.identity()));
+            if(!validCurrency(body, currencyTypeMap)) {
                 throw ExceptionEnums.INVALID_CURRENCY_EXCEPTION.get();
             }
             
-            ModelPaymentTransactionDTO response = externalApiService.executePurchase(body.getPhoneNumber(), body.getAmount(), body.getCurrency().getValue());
+            ModelPaymentTransactionDTO response = externalApiService.executePurchase(body.getPhoneNumber(), body.getAmount(), currencyTypeMap.get(body.getCurrency().getId()).getEnumName());
             
             PaymentTransaction transaction = new PaymentTransaction();
             transaction.setPhoneNumber(body.getPhoneNumber());
@@ -156,18 +156,24 @@ public class PaymentTransactionImpl implements IPaymentTransaction {
      * validates if the currency is allowed for the current areaCode.
      * 
      * @param body
+     * @param currencyTypeMap 
      * @return
      * @throws ApiException 
      */
-    private boolean validCurrency(PurchaseSaveRequestDTO body) throws ApiException {
+    private boolean validCurrency(PurchaseSaveRequestDTO body, Map<Integer, ConstantEnum> currencyTypeMap) throws ApiException {
+        String methodName = "validCurrency()";
         if(!isValidPhoneNumber(body.getPhoneNumber())) 
             return false;
         
-        ModelEnumIdValueDTO enumDto = body.getCurrency();
-        List<ConstantEnum> currencyTypeList = enumRepository.findEnumByTypeAndStatus(ApiConstants.CONSTANT_ENUM_TYPES.CURRENCY_TYPE.name());
-        boolean currencyIdFound = currencyTypeList.stream().anyMatch(row -> row.getEnumCode().equals(enumDto.getId()));
-        if(Integer.signum(enumDto.getId()) != 1 || !currencyIdFound) {
-            logger.error(ApiConstants.PARAMETER_2, "validCurrency()", "Invalid currency type found.");
+        // request contains enumId of the currency type, so should be an integer
+        Optional<Integer> currencyEnumId = Optional.ofNullable(body.getCurrency()).map(ModelEnumIdValueDTO::getId);
+        if(!currencyEnumId.isPresent()) {
+            logger.error(ApiConstants.PARAMETER_2, methodName, "Currency can not be empty.");
+            return false;
+        }
+
+        if(Integer.signum(currencyEnumId.get()) != 1 || !currencyTypeMap.containsKey(currencyEnumId.get())) {
+            logger.error(ApiConstants.PARAMETER_2, methodName, "Invalid currency type found.");
             return false;
         }
         
@@ -175,12 +181,7 @@ public class PaymentTransactionImpl implements IPaymentTransaction {
         String areaCode = body.getPhoneNumber().substring(0, end);
         InternationalPhoneCode row = internationalPhoneCodeRepository.findByAreaCode(areaCode).orElseThrow(ExceptionEnums.AREA_CODE_NOT_FOUND);
         
-        // request contains enumId of the currency type, so should be an integer
-        Optional<Integer> currencyEnumId = Optional.ofNullable(body.getCurrency()).map(ModelEnumIdValueDTO::getId);
-        if(currencyEnumId.isPresent() && row != null) {
-            return row.getConstantEnum().getEnumCode().equals(currencyEnumId.get());
-        }
-        return false;
+        return Objects.nonNull(row) && row.getConstantEnum().getEnumCode().equals(currencyEnumId.get());
     }
     
     /**
@@ -196,7 +197,7 @@ public class PaymentTransactionImpl implements IPaymentTransaction {
             return false;
         }
         
-        return Pattern.matches("\\+\\d{10,15}", phone);
+        return Pattern.matches("\\+\\d{11,15}", phone);
     }
 
     private boolean isNegative(double value) {

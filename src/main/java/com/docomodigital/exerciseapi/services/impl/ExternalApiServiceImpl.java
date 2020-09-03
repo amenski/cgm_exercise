@@ -37,8 +37,10 @@ public class ExternalApiServiceImpl implements IExternalApiService {
     @Loggable
     public ModelPaymentTransactionDTO executePurchase(String phoneNumber, Double amount, String currency)
             throws ApiException {
-        ModelPaymentTransactionDTO txDto = new ModelPaymentTransactionDTO();
         try {
+            ModelPaymentTransactionDTO txDto = new ModelPaymentTransactionDTO();
+            txDto.setStatus(ApiConstants.TX_STATUS.UNSURE.name());
+            
             RequestModelMock request = new RequestModelMock();
             request.setAmount(amount);
             request.setCurrency(currency);
@@ -76,6 +78,8 @@ public class ExternalApiServiceImpl implements IExternalApiService {
     public ModelPaymentTransactionDTO executeRefund(String orderId) throws ApiException {
         try {
             ModelPaymentTransactionDTO response = new ModelPaymentTransactionDTO();
+            response.setStatus(ApiConstants.TX_STATUS.UNSURE.name());
+            
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<Object> entity = new HttpEntity<>(orderId, headers);
@@ -85,7 +89,6 @@ public class ExternalApiServiceImpl implements IExternalApiService {
                     entity, 
                     new ParameterizedTypeReference<ResponseWrapper<ResponseModelMock>>() {});
             ResponseWrapper<ResponseModelMock> mockResponseBody = mockResponse.getBody();
-            response.setStatus(ApiConstants.TX_STATUS.UNSURE.name());
             if (mockResponseBody != null) {
                     response.setStatus(mockResponseBody.isSuccess() ? ApiConstants.TX_STATUS.SUCCESS.name() : ApiConstants.TX_STATUS.FAIL.name());
                     response.setFailureMessage(mockResponseBody.getErrors().stream().map(Object::toString).collect(Collectors.joining("  ||  ")));
