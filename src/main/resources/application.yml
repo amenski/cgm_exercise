@@ -3,7 +3,7 @@ server:
 #==== spring related ======#
 spring:
    profiles:
-      active: dev
+      active: prod
    application:
     name: example-api
    aop:
