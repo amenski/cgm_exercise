@@ -10,20 +10,20 @@ spring:
       proxy-target-class: true
 
 #==== connect to postgres ======#
-#   jpa: 
-#      hibernate:
-#         ddl-auto: update
-#      properties.hibernate.dialect: org.hibernate.dialect.PostgreSQL9Dialect
-#   datasource:
-#      url: jdbc:postgresql://localhost:5432/docomo_example_api
-#      username: postgres
-#      password: postgres
-#      driver-class-name: org.postgresql.Driver
+   jpa: 
+      hibernate:
+         ddl-auto: update
+      properties.hibernate.dialect: org.hibernate.dialect.PostgreSQL9Dialect
+   datasource:
+      url: jdbc:postgresql://localhost:5432/docomo_example_api
+      username: postgres
+      password: postgres
+      driver-class-name: org.postgresql.Driver
 
 # ====== hibernate ====
-logging:
-   level:
-      org.springframework.web: TRACE
+#logging:
+#   level:
+#      org.springframework.web: TRACE
 #      org.hibernate.SQL: debug
 #      org.hibernate.type: trace
 #      org.springframework.security: DEBUG

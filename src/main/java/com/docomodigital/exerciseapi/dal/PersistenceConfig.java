@@ -17,9 +17,9 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-@Configuration
-@EnableJpaRepositories(basePackages = { "com.docomodigital.exerciseapi.dal.repository" })
-@EnableTransactionManagement
+//@Configuration
+//@EnableJpaRepositories(basePackages = { "com.docomodigital.exerciseapi.dal.repository" })
+//@EnableTransactionManagement
 public class PersistenceConfig {
 	@Bean
 	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
