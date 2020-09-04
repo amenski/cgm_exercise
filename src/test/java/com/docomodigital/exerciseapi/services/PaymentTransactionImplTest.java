@@ -25,6 +25,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.web.client.RestTemplate;
 
 import com.docomodigital.exerciseapi.ApiExceptionMatcher;
+import com.docomodigital.exerciseapi.TestUtil;
 import com.docomodigital.exerciseapi.common.exception.ExceptionEnums;
 import com.docomodigital.exerciseapi.dal.model.ConstantEnum;
 import com.docomodigital.exerciseapi.dal.model.InternationalPhoneCode;
@@ -42,7 +43,6 @@ import com.docomodigital.exerciseapi.swagger.dtos.RefundRequestDTO;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(MDC.class)
-@SuppressWarnings("unchecked")
 public class PaymentTransactionImplTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -68,15 +68,6 @@ public class PaymentTransactionImplTest {
     @InjectMocks
     PaymentTransactionImpl paymentTransactionImpl;
     
-    private static final String PHONE = "+391234567890";
-    private static final String PHONE_2 = "+11234567890";
-    private static final String INVALID_PHONE = "+39000000";
-    private static final Double AMOUNT = 1.0;
-    private static final Double INVALID_AMOUNT = -1.0;
-    private static final String CURRENCY = "EUR";
-    private static final String PRODUCT_ID = "XXDRI980234K";
-    private static final String TX_ID = "XXDRI980234KXXDRI980234KXXDRI980234K";
-    
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
@@ -95,8 +86,8 @@ public class PaymentTransactionImplTest {
     @Test
     public void executePurchaseThenInvalidAmountException() throws Exception {
         //GIVEN
-        PurchaseSaveRequestDTO body = buildPurchaseRequestBody();
-        body.setAmount(INVALID_AMOUNT);
+        PurchaseSaveRequestDTO body = TestUtil.buildPurchaseRequestDTOBody();
+        body.setAmount(TestUtil.INVALID_AMOUNT);
         
         thrown.expect(ApiExceptionMatcher.is(ExceptionEnums.NEGATIVE_AMOUNT_EXCEPTION));
         
@@ -106,7 +97,7 @@ public class PaymentTransactionImplTest {
     @Test
     public void executePurchaseThenInvalidCurrencyTypeException() throws Exception {
         //GIVEN
-        PurchaseSaveRequestDTO body = buildPurchaseRequestBody();
+        PurchaseSaveRequestDTO body = TestUtil.buildPurchaseRequestDTOBody();
         
         //MOCKITO
         Mockito.when(enumRepository.findEnumByTypeAndStatus(anyString())).thenReturn(new ArrayList<>());
@@ -118,11 +109,11 @@ public class PaymentTransactionImplTest {
     @Test
     public void executePurchaseThenInvalidPhoneAreaCodeException() throws Exception {
       //GIVEN
-        PurchaseSaveRequestDTO body = buildPurchaseRequestBody();
-        body.setPhoneNumber(PHONE_2);
+        PurchaseSaveRequestDTO body = TestUtil.buildPurchaseRequestDTOBody();
+        body.setPhoneNumber(TestUtil.PHONE_2);
         
         //MOCKITO
-        Mockito.when(enumRepository.findEnumByTypeAndStatus(anyString())).thenReturn(buildEnumList());
+        Mockito.when(enumRepository.findEnumByTypeAndStatus(anyString())).thenReturn(TestUtil.buildEnumList());
         thrown.expect(ApiExceptionMatcher.is(ExceptionEnums.AREA_CODE_NOT_FOUND));
         
         paymentTransactionImpl.purchase(body);
@@ -131,11 +122,11 @@ public class PaymentTransactionImplTest {
     @Test
     public void executePurchaseThenExternalApiException() throws Exception {
         //GIVEN
-        PurchaseSaveRequestDTO body = buildPurchaseRequestBody();
+        PurchaseSaveRequestDTO body = TestUtil.buildPurchaseRequestDTOBody();
         
         //MOCKITO
-        Mockito.when(enumRepository.findEnumByTypeAndStatus(anyString())).thenReturn(buildEnumList());
-        Mockito.when(internationalPhoneCodeRepository.findByAreaCode(anyString())).thenReturn(buildInternationalPhoneCode());
+        Mockito.when(enumRepository.findEnumByTypeAndStatus(anyString())).thenReturn(TestUtil.buildEnumList());
+        Mockito.when(internationalPhoneCodeRepository.findByAreaCode(anyString())).thenReturn(TestUtil.buildInternationalPhoneCode());
         Mockito.when(externalApiService.executePurchase(anyString(), any(Double.class), anyString())).thenThrow(ExceptionEnums.EXTERNAL_API_EXCEPTION.get());
 
         thrown.expect(ApiExceptionMatcher.is(ExceptionEnums.EXTERNAL_API_EXCEPTION));
@@ -146,12 +137,12 @@ public class PaymentTransactionImplTest {
     @Test
     public void executePurchaseThenSuccess() throws Exception {
         //GIVEN
-        PurchaseSaveRequestDTO body = buildPurchaseRequestBody();
+        PurchaseSaveRequestDTO body = TestUtil.buildPurchaseRequestDTOBody();
         
         //MOCKITO
-        Mockito.when(enumRepository.findEnumByTypeAndStatus(anyString())).thenReturn(buildEnumList());
-        Mockito.when(internationalPhoneCodeRepository.findByAreaCode(anyString())).thenReturn(buildInternationalPhoneCode());
-        Mockito.when(externalApiService.executePurchase(anyString(), any(Double.class), anyString())).thenReturn(buildResponseModelPaymentTransactionDTOMock());
+        Mockito.when(enumRepository.findEnumByTypeAndStatus(anyString())).thenReturn(TestUtil.buildEnumList());
+        Mockito.when(internationalPhoneCodeRepository.findByAreaCode(anyString())).thenReturn(TestUtil.buildInternationalPhoneCode());
+        Mockito.when(externalApiService.executePurchase(anyString(), any(Double.class), anyString())).thenReturn(TestUtil.buildResponseModelPaymentTransactionDTOMock());
         
         //VALIDATE
         boolean result = paymentTransactionImpl.purchase(body);
@@ -161,7 +152,7 @@ public class PaymentTransactionImplTest {
     @Test
     public void getTransactionsForCustomerThenThrowException() throws Exception {
         thrown.expect(ApiExceptionMatcher.is(ExceptionEnums.VALIDATION_EXCEPTION));
-        paymentTransactionImpl.getTransactionsForCustomer(INVALID_PHONE);
+        paymentTransactionImpl.getTransactionsForCustomer(TestUtil.INVALID_PHONE);
     }
     
     @Test
@@ -170,7 +161,7 @@ public class PaymentTransactionImplTest {
         Mockito.when(paymentTransactionRepository.findByPhoneNumber(anyString())).thenReturn(new ArrayList<>());
         
         //ASSERT
-        ModelPaymentTransactionListDTO txList = paymentTransactionImpl.getTransactionsForCustomer(PHONE_2);
+        ModelPaymentTransactionListDTO txList = paymentTransactionImpl.getTransactionsForCustomer(TestUtil.PHONE_2);
         Assert.assertNotNull(txList);
         Assert.assertNull(txList.getTransactions());
     }
@@ -178,10 +169,10 @@ public class PaymentTransactionImplTest {
     @Test
     public void getTransactionsForCustomerThenSuccess1() throws Exception {
         //MOCKITO
-        Mockito.when(paymentTransactionRepository.findByPhoneNumber(anyString())).thenReturn(buildPaymentTransactionList());
+        Mockito.when(paymentTransactionRepository.findByPhoneNumber(anyString())).thenReturn(TestUtil.buildPaymentTransactionList());
         
         //ASSERT
-        ModelPaymentTransactionListDTO txList = paymentTransactionImpl.getTransactionsForCustomer(PHONE_2);
+        ModelPaymentTransactionListDTO txList = paymentTransactionImpl.getTransactionsForCustomer(TestUtil.PHONE_2);
         Assert.assertNotNull(txList);
         Assert.assertFalse(txList.getTransactions().isEmpty());
     }
@@ -198,87 +189,16 @@ public class PaymentTransactionImplTest {
         Mockito.when(paymentTransactionRepository.findByTransactionId(anyString())).thenReturn(Optional.empty());
         thrown.expect(ApiExceptionMatcher.is(ExceptionEnums.TRANSACTION_NOT_FOUND));
         
-        paymentTransactionImpl.refund(buildRefundRequestBody());
+        paymentTransactionImpl.refund(TestUtil.buildRefundRequestDTOBody());
     }
     
   @Test
   public void refundThenSuccess() throws Exception {
       //MOCKITO
-      Mockito.when(paymentTransactionRepository.findByTransactionId(anyString())).thenReturn(Optional.of(buildPaymentTransactionList().get(0)));
-      Mockito.when(externalApiService.executeRefund(anyString())).thenReturn(buildResponseModelPaymentTransactionDTOMock());
+      Mockito.when(paymentTransactionRepository.findByTransactionId(anyString())).thenReturn(Optional.of(TestUtil.buildPaymentTransactionList().get(0)));
+      Mockito.when(externalApiService.executeRefund(anyString())).thenReturn(TestUtil.buildResponseModelPaymentTransactionDTOMock());
       
-      boolean result = paymentTransactionImpl.refund(buildRefundRequestBody());
+      boolean result = paymentTransactionImpl.refund(TestUtil.buildRefundRequestDTOBody());
       Assert.assertTrue(result);
   }
-    
-    //======  mock objects ====== //
-    private static PurchaseSaveRequestDTO buildPurchaseRequestBody() {
-        ModelEnumIdValueDTO modelCurrencyEnum = new ModelEnumIdValueDTO();
-        modelCurrencyEnum.setId(1000);
-        modelCurrencyEnum.setValue(CURRENCY);
-        
-        PurchaseSaveRequestDTO body = new PurchaseSaveRequestDTO();
-        body.setAmount(AMOUNT);
-        body.setPhoneNumber(PHONE);
-        body.setProductId(PRODUCT_ID);
-        body.setCurrency(modelCurrencyEnum);
-        
-        return body;
-    }
-    
-    private static RefundRequestDTO buildRefundRequestBody() {
-        RefundRequestDTO body = new RefundRequestDTO();
-        body.setTransactionId(TX_ID);
-        body.setRefundReason("Refund reason.");
-        
-        return body;
-    }
-    
-    private static List<ConstantEnum> buildEnumList() {
-        List<ConstantEnum> list = new ArrayList<>();
-        ConstantEnum EURO = buildConstanEnum(1000, false, "Description text", "Euro", "EUR", "CURRENCY_TYPE");
-        ConstantEnum USD = buildConstanEnum(1001, false, "Description text", "US Dollar", "USD", "CURRENCY_TYPE");
-        
-        list.add(EURO);
-        list.add(USD);
-        
-        return list;
-    }
-    
-    private static ConstantEnum buildConstanEnum(Integer enumCode, boolean disabled, String enumDesc, 
-            String enumLabel, String enumName, String enumType) {
-        ConstantEnum enumObj = new ConstantEnum();
-        enumObj.setDisabled(disabled);
-        enumObj.setEnumCode(enumCode);
-        enumObj.setEnumDesc(enumDesc);
-        enumObj.setEnumLabel(enumLabel);
-        enumObj.setEnumName(enumName);
-        enumObj.setEnumType(enumType);
-        
-        return enumObj;
-    }
-    
-    private static Optional<InternationalPhoneCode> buildInternationalPhoneCode() {
-        InternationalPhoneCode code = new InternationalPhoneCode();
-        code.setId(1);
-        code.setCountry("ITA");
-        code.setAreaCode("+39");
-        code.setConstantEnum(buildEnumList().get(0));
-        return Optional.of(code);
-    }
-    
-    private static ModelPaymentTransactionDTO buildResponseModelPaymentTransactionDTOMock() {
-        return new ModelPaymentTransactionDTO()
-                .orderId("MOCKORDERID")
-                .msisdn("MOCKMSISDN")
-                .status("SUCCESS");
-    }
-    
-    private static List<PaymentTransaction> buildPaymentTransactionList() {
-        List<PaymentTransaction> txGivenList = new ArrayList<>();
-        PaymentTransaction tx = new PaymentTransaction();
-        txGivenList.add(tx);
-        
-        return txGivenList;
-    }
 }

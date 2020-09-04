@@ -18,7 +18,7 @@ public abstract class AbstractController {
 		 }
 		response.success(true);
 		response.resultCode(HttpStatus.OK.value());
-		response.message(response.getMessage() != null ? response.getMessage() : "");
+		response.message(response.getMessage());
 		response.errors(null);
 
 		return response;
@@ -28,7 +28,7 @@ public abstract class AbstractController {
 		T res = getNewInstance(response);
 		res.success(false);
 		res.resultCode(e.getErrorCode());
-		res.message(e.getMessage() != null ? e.getMessage() : "");
+		res.message(e.getMessage());
 		res.errors(e.getErrors());
 		
 		return res;
